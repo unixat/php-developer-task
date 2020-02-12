@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Course;
+use App\Models\ExportHistory;
+use App\Services\ExportCsvService;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Bueltge\Marksimple\Marksimple;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ExportSelected;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class ExportController extends Controller
 {
@@ -28,6 +30,10 @@ class ExportController extends Controller
 
     /**
      * View all students found in the database
+     *
+     * @param array|null $error
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function viewStudents()
     {
@@ -37,19 +43,25 @@ class ExportController extends Controller
     }
 
     /**
-     * Exports selected students data to a CSV file
+     * Exports all student data to a CSV file
+     *
+     * @param ExportSelected $request
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function export(ExportSelected $request)
+    public function exportStudentsToCSV(ExportSelected $request)
     {
-        //
+        $exportService = new ExportCsvService();
+        list($students, $info, $error) = $exportService->export($request->get('exportFilename'),
+                $request->get('studentId'),
+                $request->get('_token'));
+        return view('view_students', ['students' => $students, 'info' => $info, 'error' => $error]);
     }
 
-    /**
-     * Exports all student data to a CSV file
-     */
-    public function exportStudentsToCSV()
+    public function viewHistory()
     {
-        //
+        $exportHistory = ExportHistory::get()->toArray();
+        return view('view_export_history', compact('exportHistory'));
     }
 
     /**

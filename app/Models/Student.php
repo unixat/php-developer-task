@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Course;
 use App\Models\StudentAddresses;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Student extends Model
 {

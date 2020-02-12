@@ -11,17 +11,35 @@
         <form action="/export" method="post" id="student_form">
             {{ csrf_field() }}
 
-            <div class="header">
+            <div class="header container">
                 <div><img src="/images/logo.png" alt="RMP Logo" title="RMP logo" width="100%"></div>
-                @if (session('alert'))
-                    <div class="alert alert-warning">
-                        {{ session('alert') }}
+
+                @if(isset($error) || isset($info))
+
+                <div class="alert @if(isset($error)) alert-danger @else alert-success @endif ">
+                    <b>{{ $error ?? "$info" }}</b>
+                </div>
+                <div class="form-group">
+                    <input type="button" class="btm-md btn-info" value="View all students" id="view_all" />
+                    <input type="button" class="btn-md btn-info" value="View export history" id="view_history" />
+                </div>
+                @else
+                    @if (session('alert'))
+                        <div class="alert alert-warning">
+                            {{ session('alert') }}
+                        </div>
+                    @endif
+                     <div class="form-group" >
+                        <input type="button" value="Select All" id="select_all" />
+                        <input type="input" name="exportFilename" value="" placeholder="export filename" id="export_filename" />
+                        <input type="submit" value="Export" id="submit" />
+                    </div>
+                    <div class="form-group" >
+                        <input type="button" class="btn-md btn-info" value="View export history" id="view_history" />
+                    </div>
+
                     </div>
                 @endif
-                <div style='margin: 10px; text-align: left'>
-                    <input type="button" value="Select All" id="select_all" />
-                    <input type="submit" value="Export" id="submit" />
-                </div>
             </div>
 
             <div style='margin: 10px; text-align: center;'>
@@ -35,7 +53,7 @@
                         <th>Course</th>
                     </tr>
 
-                    @if(  count($students) > 0 )
+                    @if(count($students) > 0)
                     @foreach($students as $student)
                     <tr>
                         <td><input type="checkbox" class="checkbox" name="studentId[]" value="{{ $student['id'] }}"></td>
@@ -77,6 +95,28 @@
                     allChecked = true;
                 }
                 setSelectAllLabel(allChecked);
+            });
+
+            $('#view_all').on('click', function(event) {
+                event.preventDefault();
+                window.location.assign('/view');
+            });
+
+            $('#view_history').on('click', function(event) {
+                event.preventDefault();
+                window.location.assign('/viewHistory');
+            });
+
+            $('form').on('submit', function(e) {
+                if (!$('.checkbox:checked').length){
+                    alert("Please select records to export");
+                    return false;
+                }
+                if (!$('#export_filename').val()) {
+                    alert("Please enter the export filename");
+                    return false;
+                }
+                return true;
             });
 
             function setSelectAllLabel(allChecked) {
